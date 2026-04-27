@@ -79,3 +79,4 @@ jobs:
             {
               "repository": "${{ env.ORG_NAME }}-${{ inputs.service_name }}"
             }
+
