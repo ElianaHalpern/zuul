@@ -48,7 +48,7 @@ jobs:
         with:
           portClientId: ${{ secrets.PORT_CLIENT_ID }}
           portClientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          token: ${{ secrets.ORG__TOKEN }}
+          token: ${{ secrets.ORG_ADMIN_TOKEN }}
           portRunId: ${{ fromJson(inputs.port_context).runId }}
           repositoryName: ${{ inputs.service_name }}
           portUserInputs: '{"cookiecutter_app_name": "${{ inputs.service_name }}" }'
@@ -56,6 +56,7 @@ jobs:
           blueprintIdentifier: "githubRepository"
           organizationName: ${{ env.ORG_NAME }}
           createPortEntity: true
+
 
       - name: Create Service in Port with all properties
         uses: port-labs/port-github-action@v1
