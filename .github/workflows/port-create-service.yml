@@ -9,6 +9,30 @@ on:
       service_name:
         required: true
         type: string
+      owner:
+        required: false
+        type: string
+      team:
+        required: false
+        type: string
+      region:
+        required: false
+        type: string
+      tier:
+        required: false
+        type: string
+      repository_url:
+        required: false
+        type: string
+      on_call_link:
+        required: false
+        type: string
+      language:
+        required: false
+        type: string
+      lifecycle:
+        required: false
+        type: string
 
 jobs:
   scaffold-service:
@@ -34,7 +58,7 @@ jobs:
         with:
           portClientId: ${{ secrets.PORT_CLIENT_ID }}
           portClientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          token: ${{ secrets.ORG_ADMIN_TOKEN }}
+          token: ${{ secrets.ORG__TOKEN }}
           portRunId: ${{ fromJson(inputs.port_context).runId }}
           repositoryName: ${{ inputs.service_name }}
           portUserInputs: '{"cookiecutter_app_name": "${{ inputs.service_name }}" }'
@@ -43,7 +67,7 @@ jobs:
           organizationName: ${{ env.ORG_NAME }}
           createPortEntity: true
 
-      - name: Create Service in Port with Repository Relation
+      - name: Create Service in Port with all properties
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -53,8 +77,20 @@ jobs:
           identifier: "${{ inputs.service_name }}_service"
           title: "${{ inputs.service_name }} Service"
           blueprint: "service"
+          properties: |
+            {
+              "region": "${{ inputs.region }}",
+              "tier": "${{ inputs.tier }}",
+              "repository_url": "${{ inputs.repository_url }}",
+              "on_call_link": "${{ inputs.on_call_link }}",
+              "language": "${{ inputs.language }}",
+              "lifecycle": "${{ inputs.lifecycle }}"
+            }
           relations: |
-            { "repository": "${{ inputs.service_name }}" }
+            {
+              "owner": "${{ inputs.owner }}",
+              "team": "${{ inputs.team }}"
+            }
 
       - name: Report action status to Port
         uses: port-labs/port-github-action@v1
