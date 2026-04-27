@@ -43,16 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create a log message
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: PATCH_RUN
-          runId: ${{ fromJson(inputs.port_context).runId }}
-          logMessage: "Starting scaffolding of service and repository: ${{ inputs.service_name }}"
-
       - name: Create GitHub Repository
         uses: port-labs/cookiecutter-gha@v1.1.1
         with:
@@ -92,25 +82,4 @@ jobs:
               "team": "${{ inputs.team }}"
             }
 
-      - name: Report action status to Port
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: PATCH_RUN
-          runId: ${{ fromJson(inputs.port_context).runId }}
-          status: "SUCCESS"
-          summary: "Scaffolding of service and repository finished successfully"
 
-      - name: Report failure status to Port
-        if: failure()
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: PATCH_RUN
-          runId: ${{ fromJson(inputs.port_context).runId }}
-          status: "FAILURE"
-          summary: "Failed to scaffold service and repository"
