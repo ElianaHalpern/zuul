@@ -65,22 +65,17 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
           operation: UPSERT
-          identifier: "${{ inputs.service_name }}_service"
-          title: "${{ inputs.service_name }} Service"
+          identifier: "${{ inputs.service_name }}"
+          title: "${{ inputs.service_name }}"
           blueprint: "service"
           properties: |
             {
               "region": "${{ inputs.region }}",
               "tier": "${{ inputs.tier }}",
-              "repository_url": "${{ inputs.repository_url }}",
               "on_call_link": "${{ inputs.on_call_link }}",
-              "language": "${{ inputs.language }}",
               "lifecycle": "${{ inputs.lifecycle }}"
             }
           relations: |
             {
-              "owner": "${{ inputs.owner }}",
-              "team": "${{ inputs.team }}"
+              "repository": "${{ env.ORG_NAME }}-${{ inputs.service_name }}"
             }
-
-
