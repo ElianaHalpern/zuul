@@ -19,10 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract runId from port_context
-        run: |
-          echo "PORT_RUN_ID=$(echo '${{ inputs.port_context }}' | jq -r .runId)" >> $GITHUB_ENV
-
       - name: Create a log message
         uses: port-labs/port-github-action@v1
         with:
@@ -30,7 +26,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
           operation: PATCH_RUN
-          runId: ${{ env.PORT_RUN_ID }}
+          runId: ${{ fromJson(inputs.port_context).runId }}
           logMessage: "Starting scaffolding of service and repository: ${{ inputs.service_name }}"
 
       - name: Create GitHub Repository
@@ -67,7 +63,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
           operation: PATCH_RUN
-          runId: ${{ env.PORT_RUN_ID }}
+          runId: ${{ fromJson(inputs.port_context).runId }}
           status: "SUCCESS"
           summary: "Scaffolding of service and repository finished successfully"
 
@@ -79,6 +75,6 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
           operation: PATCH_RUN
-          runId: ${{ env.PORT_RUN_ID }}
+          runId: ${{ fromJson(inputs.port_context).runId }}
           status: "FAILURE"
           summary: "Failed to scaffold service and repository"
