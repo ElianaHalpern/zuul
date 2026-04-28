@@ -48,8 +48,7 @@ jobs:
         with:
           portClientId: ${{ secrets.PORT_CLIENT_ID }}
           portClientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          token: ${{ secrets.ORG_ADMIN_TOKEN }}
-          portRunId: ${{ fromJson(inputs.port_context).runId }}
+          token: ${{ secrets.ORGportRunId: ${{ fromJson(inputs.port_context).runId }}
           repositoryName: ${{ inputs.service_name }}
           portUserInputs: '{"cookiecutter_app_name": "${{ inputs.service_name }}"}'
           cookiecutterTemplate: https://github.com/lacion/cookiecutter-golang
@@ -115,7 +114,6 @@ jobs:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
-          operation:://api.port.io
           operation: UPSERT
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
