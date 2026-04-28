@@ -125,6 +125,7 @@ jobs:
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
           blueprint: "service"
+          team: "${{ steps.build_relations.outputs.team_id }}"
           properties: ${{ steps.build_props.outputs.props }}
           relations: ${{ steps.build_relations.outputs.relations }}
 
