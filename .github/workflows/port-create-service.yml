@@ -75,6 +75,15 @@ jobs:
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
 
+      - name: Build service relations
+        id: build_relations
+        run: |
+          RELATIONS="{\"repository\": \"${{ inputs.service_name }}\"}"
+          if [ -n "${{ inputs.team }}" ] && [ "${{ inputs.team }}" != "null" ]; then
+            RELATIONS=$(echo "$RELATIONS" | jq -c --arg v "${{ inputs.team }}" '. + {"owning_team": $v}')
+          fi
+          echo "relations=$RELATIONS" >> $GITHUB_OUTPUT
+
       - name: Register GitHub Repository entity in Port
         uses: port-labs/port-github-action@v1
         with:
@@ -85,6 +94,11 @@ jobs:
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
           blueprint: "githubRepository"
+          properties: |
+            {
+              "url": "https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}",
+              "language": "Go"
+            }
           relations: |
             {
               "organization": "ElianaHalpern"
@@ -101,10 +115,7 @@ jobs:
           title: "${{ inputs.service_name }}"
           blueprint: "service"
           properties: ${{ steps.build_props.outputs.props }}
-          relations: |
-            {
-              "repository": "${{ inputs.service_name }}"
-            }
+          relations: ${{ steps.build_relations.outputs.relations }}
 
       - name: Report success to Port
         if: success()
