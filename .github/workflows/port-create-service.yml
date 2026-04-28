@@ -75,7 +75,7 @@ jobs:
             PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.lifecycle }}" '. + {"lifecycle": $v}')
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
-
+                
       - name: Create Service in Port with all properties
         uses: port-labs/port-github-action@v1
         with:
@@ -86,11 +86,18 @@ jobs:
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
           blueprint: "service"
-          properties: ${{ steps.build_props.outputs.props }}
+          properties: |
+            {
+              "region": "${{ inputs.region }}",
+              "tier": "${{ inputs.tier }}",
+              "on_call_link": "${{ inputs.on_call_link }}",
+              "lifecycle": "${{ inputs.lifecycle }}"
+            }
           relations: |
             {
-              "repository": "${{ inputs.service_name }}"
+              "repository": "ElianaHalpern/${{ inputs.service_name }}"
             }
+      
 
       # FIX 2: Always report run status back to Port
       - name: Report success to Port
