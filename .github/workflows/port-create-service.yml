@@ -75,6 +75,20 @@ jobs:
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
 
+      - name: Register GitHub Repository entity in Port
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.port.io
+          operation: UPSERT
+          identifier: "${{ inputs.service_name }}"
+          title: "${{ inputs.service_name }}"
+          blueprint: "githubRepository"
+          relations: |
+            {
+              "organization": "ElianaHalpern"
+            }
 
       - name: Create Service in Port
         uses: port-labs/port-github-action@v1
