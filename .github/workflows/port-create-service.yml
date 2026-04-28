@@ -79,19 +79,21 @@ jobs:
         id: build_relations
         run: |
           RELATIONS="{\"repository\": \"${{ inputs.service_name }}\"}"
+          echo "relations=$RELATIONS" >> $GITHUB_OUTPUT
+          
+          # Extract team identifier
           TEAM_INPUT="${{ inputs.team }}"
+          TEAM_ID=""
           if [ -n "$TEAM_INPUT" ] && [ "$TEAM_INPUT" != "null" ]; then
-            # Extract just the identifier from the full entity object Port sends
             if echo "$TEAM_INPUT" | grep -q "identifier:"; then
               TEAM_ID=$(echo "$TEAM_INPUT" | grep -oP '(?<=identifier: )[^,}]+' | tr -d ' ')
             else
+              TEAM_ID=" -d ' ')
+            else
               TEAM_ID="$TEAM_INPUT"
             fi
-            if [ -n "$TEAM_ID" ] && [ "$TEAM_ID" != "null" ]; then
-              RELATIONS=$(echo "$RELATIONS" | jq -c --arg v "$TEAM_ID" '. + {"owning_team": $v}')
-            fi
           fi
-          echo "relations=$RELATIONS" >> $GITHUB_OUTPUT
+          echo "team_id=$TEAM_ID" >> $GITHUB_OUTPUT
 
       - name: Register GitHub Repository entity in Port
         uses: port-labs/port-github-action@v1
