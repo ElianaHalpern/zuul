@@ -61,19 +61,20 @@ jobs:
         id: build_props
         run: |
           PROPS="{}"
-          if [ -n "${{ inputs.region }}" ]; then
+          if [ -n "${{ inputs.region }}" ] && [ "${{ inputs.region }}" != "null" ]; then
             PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.region }}" '. + {"region": $v}')
           fi
-          if [ -n "${{ inputs.tier }}" ]; then
+          if [ -n "${{ inputs.tier }}" ] && [ "${{ inputs.tier }}" != "null" ]; then
             PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.tier }}" '. + {"tier": $v}')
           fi
-          if [ -n "${{ inputs.on_call_link }}" ]; then
+          if [ -n "${{ inputs.on_call_link }}" ] && [ "${{ inputs.on_call_link }}" != "null" ]; then
             PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.on_call_link }}" '. + {"on_call_link": $v}')
           fi
-          if [ -n "${{ inputs.lifecycle }}" ]; then
+          if [ -n "${{ inputs.lifecycle }}" ] && [ "${{ inputs.lifecycle }}" != "null" ]; then
             PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.lifecycle }}" '. + {"lifecycle": $v}')
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
+
 
       - name: Create Service in Port
         uses: port-labs/port-github-action@v1
