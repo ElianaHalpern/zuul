@@ -1,6 +1,4 @@
-name: Scaffold a new service
-
-on:
+name: Scaffold a new service:
   workflow_dispatch:
     inputs:
       port_context:
@@ -75,20 +73,14 @@ jobs:
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
 
-      - name: Build service relations
-        id: build_relations
+      - name: Extract team identifier
+        id: extract_team
         run: |
-          RELATIONS="{\"repository\": \"${{ inputs.service_name }}\"}"
-          echo "relations=$RELATIONS" >> $GITHUB_OUTPUT
-          
-          # Extract team identifier
           TEAM_INPUT="${{ inputs.team }}"
           TEAM_ID=""
           if [ -n "$TEAM_INPUT" ] && [ "$TEAM_INPUT" != "null" ]; then
             if echo "$TEAM_INPUT" | grep -q "identifier:"; then
               TEAM_ID=$(echo "$TEAM_INPUT" | grep -oP '(?<=identifier: )[^,}]+' | tr -d ' ')
-            else
-              TEAM_ID=" -d ' ')
             else
               TEAM_ID="$TEAM_INPUT"
             fi
@@ -125,9 +117,12 @@ jobs:
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
           blueprint: "service"
-          team: "${{ steps.build_relations.outputs.team_id }}"
+          team: "${{ steps.extract_team.outputs.team_id }}"
           properties: ${{ steps.build_props.outputs.props }}
-          relations: ${{ steps.build_relations.outputs.relations }}
+          relations: |
+            {
+              "repository": "${{ inputs.service_name }}"
+            }
 
       - name: Report success to Port
         if: success()
@@ -136,7 +131,7 @@ jobs:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.port.io
-          operation: PATCH_RUN
+          operation: PATCHRUN
           runId: ${{ fromJson(inputs.port_context).runId }}
           status: "SUCCESS"
           logMessage: "Service '${{ inputs.service_name }}' scaffolded and registered in Port ✅"
