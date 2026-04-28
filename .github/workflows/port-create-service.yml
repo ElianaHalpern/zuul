@@ -1,4 +1,6 @@
-name: Scaffold a new service:
+name: Scaffold a new service
+
+on:
   workflow_dispatch:
     inputs:
       port_context:
@@ -86,64 +88,3 @@ jobs:
             fi
           fi
           echo "team_id=$TEAM_ID" >> $GITHUB_OUTPUT
-
-      - name: Register GitHub Repository entity in Port
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: UPSERT
-          identifier: "${{ inputs.service_name }}"
-          title: "${{ inputs.service_name }}"
-          blueprint: "githubRepository"
-          properties: |
-            {
-              "url": "https://github.com/${{ env.ORG_NAME }}/${{ inputs.service_name }}",
-              "language": "Go"
-            }
-          relations: |
-            {
-              "organization": "ElianaHalpern"
-            }
-
-      - name: Create Service in Port
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: UPSERT
-          identifier: "${{ inputs.service_name }}"
-          title: "${{ inputs.service_name }}"
-          blueprint: "service"
-          team: "${{ steps.extract_team.outputs.team_id }}"
-          properties: ${{ steps.build_props.outputs.props }}
-          relations: |
-            {
-              "repository": "${{ inputs.service_name }}"
-            }
-
-      - name: Report success to Port
-        if: success()
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: PATCHRUN
-          runId: ${{ fromJson(inputs.port_context).runId }}
-          status: "SUCCESS"
-          logMessage: "Service '${{ inputs.service_name }}' scaffolded and registered in Port ✅"
-
-      - name: Report failure to Port
-        if: failure()
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          baseUrl: https://api.port.io
-          operation: PATCH_RUN
-          runId: ${{ fromJson(inputs.port_context).runId }}
-          status: "FAILURE"
-          logMessage: "Failed to scaffold service '${{ inputs.service_name }}' ❌"
