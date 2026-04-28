@@ -57,6 +57,24 @@ jobs:
           organizationName: ${{ env.ORG_NAME }}
           createPortEntity: true
 
+      # FIX 1: Build properties JSON conditionally — skip empty optional enums
+      - name: Build service properties
+        id: build_props
+        run: |
+          PROPS="{}"
+          if [ -n "${{ inputs.region }}" ]; then
+            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.region }}" '. + {"region": $v}')
+          fi
+          if [ -n "${{ inputs.tier }}" ]; then
+            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.tier }}" '. + {"tier": $v}')
+          fi
+          if [ -n "${{ inputs.on_call_link }}" ]; then
+            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.on_call_link }}" '. + {"on_call_link": $v}')
+          fi
+          if [ -n "${{ inputs.lifecycle }}" ]; then
+            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.lifecycle }}" '. + {"lifecycle": $v}')
+          fi
+          echo "props=$PROPS" >> $GITHUB_OUTPUT
 
       - name: Create Service in Port with all properties
         uses: port-labs/port-github-action@v1
@@ -68,15 +86,33 @@ jobs:
           identifier: "${{ inputs.service_name }}"
           title: "${{ inputs.service_name }}"
           blueprint: "service"
-          properties: |
-            {
-              "region": "${{ inputs.region }}",
-              "tier": "${{ inputs.tier }}",
-              "on_call_link": "${{ inputs.on_call_link }}",
-              "lifecycle": "${{ inputs.lifecycle }}"
-            }
+          properties: ${{ steps.build_props.outputs.props }}
           relations: |
             {
               "repository": "${{ env.ORG_NAME }}-${{ inputs.service_name }}"
             }
 
+      # FIX 2: Always report run status back to Port
+      - name: Report success to Port
+        if: success()
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.port.io
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_context).runId }}
+          status: "SUCCESS"
+          logMessage: "Service '${{ inputs.service_name }}' scaffolded and registered in Port ✅"
+
+      - name: Report failure to Port
+        if: failure()
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.port.io
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_context).runId }}
+          status: "FAILURE"
+          logMessage: "Failed to scaffold service '${{ inputs.service_name }}' ❌"
