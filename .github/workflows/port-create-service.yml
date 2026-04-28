@@ -62,16 +62,16 @@ jobs:
         run: |
           PROPS="{}"
           if [ -n "${{ inputs.region }}" ]; then
-            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.region }}" '. + {"region": $v}')
+            PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.region }}" '. + {"region": $v}')
           fi
           if [ -n "${{ inputs.tier }}" ]; then
-            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.tier }}" '. + {"tier": $v}')
+            PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.tier }}" '. + {"tier": $v}')
           fi
           if [ -n "${{ inputs.on_call_link }}" ]; then
-            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.on_call_link }}" '. + {"on_call_link": $v}')
+            PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.on_call_link }}" '. + {"on_call_link": $v}')
           fi
           if [ -n "${{ inputs.lifecycle }}" ]; then
-            PROPS=$(echo "$PROPS" | jq --arg v "${{ inputs.lifecycle }}" '. + {"lifecycle": $v}')
+            PROPS=$(echo "$PROPS" | jq -c --arg v "${{ inputs.lifecycle }}" '. + {"lifecycle": $v}')
           fi
           echo "props=$PROPS" >> $GITHUB_OUTPUT
 
